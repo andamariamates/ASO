@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 1024
+
+int main() 
+{
+    char szPath[260];
+    FILE* pFile = NULL;
+    char szBuffer[MAX];
+
+    printf("Introduceti calea: ");
+    if (fgets(szPath, MAX - 1, stdin) == NULL)
+    {
+        printf("Eroare citire cale fisier.\n");
+    }
+
+    szPath[strcspn(szPath, "\n")] = 0;
+
+    if ((pFile = fopen(szPath, "r")) == NULL)
+    {
+        printf("Eroare: Fisierul '%s' nu a fost gasit.\n", szPath);
+    }
+
+    printf("Continutul fisierului:\n");
+
+    while (fgets(szBuffer, sizeof(szBuffer), pFile) != NULL) {
+        printf("%s", szBuffer);
+    }
+
+    fclose(pFile);
+
+    return 0;
+}
