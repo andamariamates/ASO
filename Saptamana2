@@ -1,3 +1,10 @@
+/*
+
+TEMĂ OPȚIONALĂ
+Să se creeze un proiect în MVSC folosind limbajul C sau C++, în cadrul căruia se va proiecta o aplicație care citește toate datele dintr-un fișier al cărui path relativ este preluat de la intrarea standard și le va afișa la ieșirea standard. În cazul în care fișierul menționat nu există, se va afișa un mesaj de eroare. Codul va respecta notația maghiară.
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
