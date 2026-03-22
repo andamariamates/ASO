@@ -1,0 +1,65 @@
+//Sa se citeasca toate subcheile unei chei (la alegere) din Registry si sa se afiseze la iesirea standard.
+//Am ales HKEY_CURRENT_USER/Printers
+//Am folosit documentatia Microsoft sa vad ce returneaza, de unde, cum
+//Am folosit notatia maghiara ca in tema precedenta
+
+#include <stdio.h>
+#include <windows.h>
+
+int main()
+{
+	HKEY hKey;
+	long lResult;
+
+	lResult = RegOpenKeyExA(
+		HKEY_CURRENT_USER,
+		"Printers",
+		0,
+		KEY_READ,
+		&hKey
+	);
+
+	if (lResult != ERROR_SUCCESS) {
+		printf("Eroare deschidere cheie\n");
+		return 1;
+	}
+
+	char szSubKeyName[256];
+	DWORD dwSubKeyNameSize;
+	DWORD iIndex = 0;
+
+	printf("Subchei:\n");
+
+	while (1) {
+		dwSubKeyNameSize = 256;
+
+		lResult = RegEnumKeyExA(
+			hKey,
+			iIndex,
+			szSubKeyName,
+			&dwSubKeyNameSize,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		);
+
+		if (lResult == ERROR_NO_MORE_ITEMS) {
+			break;
+		}
+
+		if (lResult == ERROR_SUCCESS) {
+			printf("%s\n", szSubKeyName);
+		} 
+		else {
+			printf("Eroare la enum\n");
+			break;
+		}
+
+		iIndex++;
+
+	}
+
+	RegCloseKey(hKey);
+	return 0;
+}
