@@ -1,0 +1,77 @@
+/*
+
+**TEMĂ OBLIGATORIE** ❗ 
+Să se proiecteze o aplicație (powershell, cmd, MSVC/C++ preferabil) care să identifice toate serviciile sistem care 
+rulează la modul curent pe mașină.
+
+*/
+
+#include <windows.h>
+#include <stdio.h>
+
+int main() {
+    SC_HANDLE hSCManager;
+    DWORD dwBytesNeeded = 0;
+    DWORD dwServicesCount = 0;
+    DWORD dwResumeHandle = 0;
+
+    hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ENUMERATE_SERVICE);
+    if (hSCManager == NULL) {
+        printf("Eroare OpenSCManager\n");
+        return 1;
+    }
+
+    EnumServicesStatusEx(
+        hSCManager,
+        SC_ENUM_PROCESS_INFO,
+        SERVICE_WIN32,
+        SERVICE_STATE_ALL,
+        NULL,
+        0,
+        &dwBytesNeeded,
+        &dwServicesCount,
+        &dwResumeHandle,
+        NULL
+    );
+
+    LPBYTE lpBuffer = (LPBYTE)malloc(dwBytesNeeded);
+    if (lpBuffer == NULL) {
+        printf("Eroare malloc\n");
+        CloseServiceHandle(hSCManager);
+        return 1;
+    }
+
+    if (!EnumServicesStatusEx(
+        hSCManager,
+        SC_ENUM_PROCESS_INFO,
+        SERVICE_WIN32,
+        SERVICE_STATE_ALL,
+        lpBuffer,
+        dwBytesNeeded,
+        &dwBytesNeeded,
+        &dwServicesCount,
+        &dwResumeHandle,
+        NULL
+    )) {
+        printf("Eroare EnumServicesStatusEx\n");
+        free(lpBuffer);
+        CloseServiceHandle(hSCManager);
+        return 1;
+    }
+
+    ENUM_SERVICE_STATUS_PROCESS* lpServices;
+    lpServices = (ENUM_SERVICE_STATUS_PROCESS*)lpBuffer;
+
+    for (DWORD i = 0; i < dwServicesCount; i++) {
+        if (lpServices[i].ServiceStatusProcess.dwCurrentState == SERVICE_RUNNING) {
+            wprintf(L"Service: %s | PID: %lu\n",
+                lpServices[i].lpServiceName,
+                lpServices[i].ServiceStatusProcess.dwProcessId);
+        }
+    }
+
+    free(lpBuffer);
+    CloseServiceHandle(hSCManager);
+
+    return 0;
+}
