@@ -1,0 +1,99 @@
+@model IEnumerable<TodoItem>
+@{
+    ViewData["Title"] = "Lista mea de sarcini";
+}
+
+<div class="page-header">
+    <div class="header-text">
+        <h1 class="page-title">Lista mea de sarcini</h1>
+        <p class="page-subtitle">
+            @ViewBag.ActiveCount sarcini active &bull;
+            @ViewBag.CompletedCount completate &bull;
+            @ViewBag.TotalCount total
+        </p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Adauga sarcina</a>
+</div>
+
+<div class="filter-bar">
+    <span class="filter-label">Filtreaza:</span>
+    <a asp-action="Index" asp-route-filter="all"
+       class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")">
+        Toate (@ViewBag.TotalCount)
+    </a>
+    <a asp-action="Index" asp-route-filter="active"
+       class="filter-btn @(ViewBag.CurrentFilter == "active" ? "active" : "")">
+        Active (@ViewBag.ActiveCount)
+    </a>
+    <a asp-action="Index" asp-route-filter="completed"
+       class="filter-btn @(ViewBag.CurrentFilter == "completed" ? "active" : "")">
+        Completate (@ViewBag.CompletedCount)
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Nicio sarcina gasita</h3>
+        <p>
+            @if (ViewBag.CurrentFilter == "all")
+            {
+                <text>Adauga prima ta sarcina folosind butonul de mai sus!</text>
+            }
+            else
+            {
+                <text>Nu exista sarcini cu filtrul selectat.</text>
+            }
+        </p>
+    </div>
+}
+else
+{
+    <div class="todo-list">
+        @foreach (var item in Model)
+        {
+            <div class="todo-card @(item.IsCompleted ? "completed" : "")">
+
+                <form asp-action="Toggle" asp-route-id="@item.Id" method="post" class="toggle-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="checkbox @(item.IsCompleted ? "checked" : "")">
+                        @if (item.IsCompleted) { <text>✓</text> }
+                    </button>
+                </form>
+
+                <div class="todo-content">
+                    <h3 class="todo-title">@item.Title</h3>
+                    @if (!string.IsNullOrEmpty(item.Description))
+                    {
+                        <p class="todo-description">@item.Description</p>
+                    }
+                    <div class="todo-meta">
+                        <span class="meta-date">📅 @item.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                        @if (item.DueDate.HasValue)
+                        {
+                            var isOverdue = !item.IsCompleted && item.DueDate < DateTime.Now;
+                            <span class="meta-due @(isOverdue ? "overdue" : "")">
+                                ⏰ Termen: @item.DueDate.Value.ToString("dd MMM yyyy")
+                                @if (isOverdue) { <text>(Depasit!)</text> }
+                            </span>
+                        }
+                        <span class="meta-status @(item.IsCompleted ? "status-done" : "status-active")">
+                            @(item.IsCompleted ? "✓ Completata" : "● Activa")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="todo-actions">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary btn-sm">✏️ Editeaza</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                          onsubmit="return confirm('Esti sigur ca vrei sa stergi aceasta sarcina?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm">🗑️ Sterge</button>
+                    </form>
+                </div>
+
+            </div>
+        }
+    </div>
+}

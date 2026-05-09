@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Todo App</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="nav-brand" asp-controller="Todo" asp-action="Index">
+                <span class="brand-icon">✓</span>
+                TodoApp
+            </a>
+
+            <div class="nav-right">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="nav-user">
+                        👤 @User.Identity.Name
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span class="admin-badge">ADMIN</span>
+                        }
+                    </span>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary btn-sm">
+                            Panou Admin
+                        </a>
+                    }
+
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-secondary btn-sm">Deconectare</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-secondary btn-sm">Login</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-sm">Inregistrare</a>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <span class="alert-icon">✓</span>
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-error">
+                    <span class="alert-icon">✗</span>
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

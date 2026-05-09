@@ -1,0 +1,84 @@
+@model List<TodoApp.Controllers.UserStatsViewModel>
+@{
+    ViewData["Title"] = "Panou Admin";
+}
+
+<div class="page-header">
+    <div class="header-text">
+        <h1 class="page-title">Panou Administrator</h1>
+        <p class="page-subtitle">
+            @ViewBag.TotalUsers utilizatori &bull;
+            @ViewBag.TotalTasks sarcini totale &bull;
+            @ViewBag.TotalCompleted completate &bull;
+            @ViewBag.TotalActive active
+        </p>
+    </div>
+</div>
+
+<!-- Carduri sumar -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalUsers</div>
+        <div class="stat-label">Utilizatori</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@ViewBag.TotalTasks</div>
+        <div class="stat-label">Sarcini totale</div>
+    </div>
+    <div class="stat-card stat-card-green">
+        <div class="stat-number">@ViewBag.TotalCompleted</div>
+        <div class="stat-label">Completate</div>
+    </div>
+    <div class="stat-card stat-card-blue">
+        <div class="stat-number">@ViewBag.TotalActive</div>
+        <div class="stat-label">Active</div>
+    </div>
+</div>
+
+<!-- Tabel utilizatori -->
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>Niciun utilizator inregistrat inca</h3>
+        <p>Utilizatorii vor aparea aici dupa ce se inregistreaza.</p>
+    </div>
+}
+else
+{
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Total sarcini</th>
+                    <th>✓ Completate</th>
+                    <th>● Active</th>
+                    <th>Progres</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.OrderByDescending(u => u.TotalTasks))
+                {
+                    var percent = user.TotalTasks > 0
+                        ? (int)((double)user.CompletedTasks / user.TotalTasks * 100)
+                        : 0;
+                    <tr>
+                        <td><span class="username-badge">@user.Username</span></td>
+                        <td><strong>@user.TotalTasks</strong></td>
+                        <td class="cell-green">@user.CompletedTasks</td>
+                        <td class="cell-blue">@user.ActiveTasks</td>
+                        <td>
+                            <div class="progress-wrap">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: @percent%"></div>
+                                </div>
+                                <span class="progress-label">@percent%</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
